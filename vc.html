@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct Video Call</title>
+    <style>
+        /* Add your CSS styles here */
+        #localVideo {
+            width: 50%;
+        }
+
+        #remoteVideo {
+            width: 50%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Direct Video Call</h1>
+    <video id="localVideo" autoplay playsinline muted></video>
+    <video id="remoteVideo" autoplay playsinline></video>
+
+    <script>
+        const constraints = { video: true, audio: true };
+
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then((stream) => {
+                const localVideo = document.getElementById('localVideo');
+                localVideo.srcObject = stream;
+            })
+            .catch((error) => {
+                console.error('Error accessing media devices:', error);
+            });
+
+        const peerConnection = new RTCPeerConnection();
+
+        // Add your local stream to the connection
+        const localStream = localVideo.srcObject;
+        localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+        // Display remote stream when it's received
+        peerConnection.ontrack = (event) => {
+            const remoteVideo = document.getElementById('remoteVideo');
+            if (!remoteVideo.srcObject) {
+                remoteVideo.srcObject = event.streams[0];
+            }
+        };
+
+        // Code for creating an offer and setting it as the local description
+        peerConnection.createOffer()
+            .then(offer => peerConnection.setLocalDescription(offer))
+            .catch(error => console.error('Error creating offer:', error));
+
+        // Exchange the offer between users and set it as the remote description on the other side
+        // This part needs to be handled manually, such as through a communication channel like messaging or email
+        // For simplicity, you can copy and paste the offer and answer between the two users
+
+        // On the other user's side, set the remote description with the received offer
+        // Then create an answer and set it as the local description
+        // Finally, exchange the answer between users and set it as the remote description on the initiating user's side
+    </script>
+</body>
+</html>
